@@ -3,14 +3,14 @@ services:
     image: mysql:8.4.6
     container_name: franchise-mysql
     environment:
-      MYSQL_DATABASE: franchise
-      MYSQL_USER: franchise
-      MYSQL_PASSWORD: franchise
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME:-franchise}
+      MYSQL_USER: ${DB_USER:-franchise}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-franchise}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -19,13 +19,14 @@ services:
     build: .
     container_name: franchise-api
     environment:
+      SERVER_PORT: ${SERVER_PORT:-8080}
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: franchise
-      DB_USER: franchise
-      DB_PASSWORD: franchise
+      DB_NAME: ${DB_NAME:-franchise}
+      DB_USER: ${DB_USER:-franchise}
+      DB_PASSWORD: ${DB_PASSWORD:-franchise}
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     depends_on:
       mysql:
         condition: service_healthy

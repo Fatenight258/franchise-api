@@ -36,6 +36,10 @@ com.franchise
 
 ## Ejecutar en local
 
+### Variables de entorno
+
+Opcionalmente se puede crear un archivo `.env` en la raíz con las variables de la tabla de abajo. Docker Compose lo lee y la app también lo carga al correr con Maven o desde el IDE. Si no existe, se usan los valores por defecto.
+
 ### Opción 1: todo con Docker
 
 ```bash
@@ -51,9 +55,9 @@ mvn spring-boot:run
 
 El esquema (`src/main/resources/schema.sql`) se crea al arrancar.
 
-- API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- Health: http://localhost:8080/actuator/health
+- API: http://localhost:8080/api/v1
+- Swagger UI: http://localhost:8080/api/v1/swagger-ui.html
+- Health: http://localhost:8080/api/v1/actuator/health
 
 | Variable      | Default     |
 |---------------|-------------|
@@ -63,6 +67,7 @@ El esquema (`src/main/resources/schema.sql`) se crea al arrancar.
 | `DB_NAME`     | `franchise` |
 | `DB_USER`     | `franchise` |
 | `DB_PASSWORD` | `franchise` |
+| `DB_ROOT_PASSWORD` | `root` (solo Docker) |
 
 ## Tests
 

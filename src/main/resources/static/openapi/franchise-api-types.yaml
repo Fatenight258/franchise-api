@@ -1,0 +1,15 @@
+openapi: 3.0.3
+info:
+  title: Franchise API - Types
+  version: 1.0.0
+paths: {}
+
+components:
+  schemas:
+    Status:
+      type: string
+      description: Status of a franchise or branch
+      enum:
+        - ACTIVE
+        - INACTIVE
+      example: ACTIVE

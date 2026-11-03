@@ -1,0 +1,26 @@
+openapi: 3.0.3
+info:
+  title: Franchise API - Responses
+  version: 1.0.0
+paths: {}
+
+components:
+  schemas:
+    ErrorResponse:
+      description: Standard error response
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 404
+        message:
+          type: string
+          example: "Franchise not found: 99"
+        debugMessage:
+          type: string
+          example: ""
