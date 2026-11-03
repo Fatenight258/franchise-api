@@ -22,6 +22,7 @@
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     <springdoc.version>2.8.9</springdoc.version>
+    <openapi-generator.version>7.14.0</openapi-generator.version>
   </properties>
 
   <dependencies>
@@ -113,6 +114,39 @@
             <arg>-Amapstruct.defaultComponentModel=spring</arg>
           </compilerArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator.version}</version>
+        <executions>
+          <execution>
+            <id>generate-dto</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${project.basedir}/src/main/resources/static/openapi/franchise-api.yaml</inputSpec>
+              <generatorName>spring</generatorName>
+              <output>${project.basedir}</output>
+              <addCompileSourceRoot>false</addCompileSourceRoot>
+              <modelPackage>com.franchise.application.model</modelPackage>
+              <generateApis>false</generateApis>
+              <generateModelTests>false</generateModelTests>
+              <generateModelDocumentation>false</generateModelDocumentation>
+              <generateSupportingFiles>false</generateSupportingFiles>
+              <configOptions>
+                <sourceFolder>src/main/java</sourceFolder>
+                <useSpringBoot3>true</useSpringBoot3>
+                <useJakartaEe>true</useJakartaEe>
+                <reactive>true</reactive>
+                <openApiNullable>false</openApiNullable>
+                <useBeanValidation>true</useBeanValidation>
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>

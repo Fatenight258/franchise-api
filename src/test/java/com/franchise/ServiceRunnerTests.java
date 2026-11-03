@@ -10,7 +10,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class FranchiseApiApplicationTests {
+class ServiceRunnerTests {
 
   @Autowired
   private WebTestClient webTestClient;
