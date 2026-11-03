@@ -1,0 +1,31 @@
+services:
+  mysql:
+    image: mysql:8.4.6
+    container_name: franchise-mysql
+    environment:
+      MYSQL_DATABASE: franchise
+      MYSQL_USER: franchise
+      MYSQL_PASSWORD: franchise
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    container_name: franchise-api
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: franchise
+      DB_USER: franchise
+      DB_PASSWORD: franchise
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
