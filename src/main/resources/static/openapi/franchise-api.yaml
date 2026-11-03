@@ -1,0 +1,624 @@
+openapi: 3.0.3
+info:
+  title: Franchise API
+  description: |
+    **Franchise Management API**
+
+    This API is responsible for operations related to the management of franchises, including:
+
+    - Registration and update of franchises, branches and products
+    - Logical activation / inactivation of franchises and branches
+    - Stock management of the products offered in each branch
+    - Report of the product with the most stock per branch of a franchise
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: franchises
+    description: Manage franchises
+  - name: branches
+    description: Manage branches of a franchise
+  - name: products
+    description: Manage products offered in a branch
+
+paths:
+  /franchises:
+    get:
+      tags:
+        - franchises
+      summary: Get all franchises
+      description: Retrieves a list of all franchises in the system
+      operationId: getFranchises
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FranchiseDto'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - franchises
+      summary: Create a new franchise
+      description: Creates a new franchise. The franchise is created ACTIVE.
+      operationId: createFranchise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FranchiseCreateDto'
+      responses:
+        '201':
+          description: Franchise created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /franchises/{id}:
+    get:
+      tags:
+        - franchises
+      summary: Get franchise by ID
+      description: Retrieves a specific franchise by its ID
+      operationId: getFranchiseById
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - franchises
+      summary: Update franchise
+      description: Updates the name of an existing franchise
+      operationId: updateFranchise
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FranchiseCreateDto'
+      responses:
+        '200':
+          description: Franchise updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - franchises
+      summary: Delete franchise (logical)
+      description: |
+        Logically deletes a franchise by toggling its status (ACTIVE -> INACTIVE, INACTIVE -> ACTIVE).
+        No records are physically deleted. Returns the franchise with its new status.
+      operationId: deleteFranchise
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Franchise status changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /franchises/{id}/branches:
+    post:
+      tags:
+        - branches
+      summary: Add a branch to a franchise
+      description: Creates a new branch for the given franchise. The branch is created ACTIVE.
+      operationId: createBranch
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreateDto'
+      responses:
+        '201':
+          description: Branch created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /franchises/{id}/top-stock-products:
+    get:
+      tags:
+        - franchises
+        - products
+      summary: Get the product with the most stock per branch
+      description: |
+        Returns, for each ACTIVE branch of the franchise, the product with the most stock and the branch it
+        belongs to. Branches without products are omitted. On a tie, the product with the lowest ID is returned.
+      operationId: getTopStockProducts
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TopStockProductDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /branches:
+    get:
+      tags:
+        - branches
+      summary: Get all branches
+      description: Retrieves a list of all branches
+      operationId: getBranches
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchDto'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /branches/{id}:
+    get:
+      tags:
+        - branches
+      summary: Get branch by ID
+      description: Retrieves a specific branch by its ID
+      operationId: getBranchById
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - branches
+      summary: Update branch
+      description: Updates the name of an existing branch
+      operationId: updateBranch
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreateDto'
+      responses:
+        '200':
+          description: Branch updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - branches
+      summary: Delete branch (logical)
+      description: |
+        Logically deletes a branch by toggling its status (ACTIVE -> INACTIVE, INACTIVE -> ACTIVE).
+        No records are physically deleted. Returns the branch with its new status.
+      operationId: deleteBranch
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Branch status changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /branches/{id}/products:
+    post:
+      tags:
+        - products
+      summary: Add a product to a branch
+      description: Creates a new product offered in the given branch
+      operationId: createProduct
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateDto'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products:
+    get:
+      tags:
+        - products
+      summary: Get all products
+      description: Retrieves a list of all products
+      operationId: getProducts
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{id}:
+    get:
+      tags:
+        - products
+      summary: Get product by ID
+      description: Retrieves a specific product by its ID
+      operationId: getProductById
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - products
+      summary: Update product
+      description: Updates the name and stock of an existing product
+      operationId: updateProduct
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateDto'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - products
+      summary: Delete product
+      description: Physically deletes a product from its branch
+      operationId: deleteProduct
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Product deleted successfully
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{id}/stock:
+    patch:
+      tags:
+        - products
+      summary: Update product stock
+      description: Updates only the stock of an existing product
+      operationId: updateProductStock
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductStockUpdateDto'
+      responses:
+        '200':
+          description: Stock updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDto'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      description: Resource ID
+      required: true
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+
+  schemas:
+    FranchiseDto:
+      type: object
+      description: Franchise
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        name:
+          type: string
+          example: "Cosechas"
+        status:
+          $ref: './franchise-api-types.yaml#/components/schemas/Status'
+
+    FranchiseCreateDto:
+      type: object
+      description: Request body to create or update a franchise
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Cosechas"
+
+    BranchDto:
+      type: object
+      description: Branch of a franchise
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        franchiseId:
+          type: integer
+          format: int32
+          example: 1
+        name:
+          type: string
+          example: "El Poblado"
+        status:
+          $ref: './franchise-api-types.yaml#/components/schemas/Status'
+
+    BranchCreateDto:
+      type: object
+      description: Request body to create or update a branch
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "El Poblado"
+
+    ProductDto:
+      type: object
+      description: Product offered in a branch
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        branchId:
+          type: integer
+          format: int32
+          example: 1
+        name:
+          type: string
+          example: "Jugo de Mango"
+        stock:
+          type: integer
+          format: int32
+          example: 120
+
+    ProductCreateDto:
+      type: object
+      description: Request body to create or update a product
+      required:
+        - name
+        - stock
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Jugo de Mango"
+        stock:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 120
+
+    ProductStockUpdateDto:
+      type: object
+      description: Request body to update the stock of a product
+      required:
+        - stock
+      properties:
+        stock:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 80
+
+    TopStockProductDto:
+      type: object
+      description: Product with the most stock in a branch, with the branch it belongs to
+      properties:
+        branchId:
+          type: integer
+          format: int32
+          example: 1
+        branchName:
+          type: string
+          example: "El Poblado"
+        productId:
+          type: integer
+          format: int32
+          example: 1
+        productName:
+          type: string
+          example: "Jugo de Mango"
+        stock:
+          type: integer
+          format: int32
+          example: 120
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: './franchise-api-responses.yaml#/components/schemas/ErrorResponse'
+
+    NotFoundError:
+      description: Not found - Resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: './franchise-api-responses.yaml#/components/schemas/ErrorResponse'
+
+    ConflictError:
+      description: Conflict - Resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: './franchise-api-responses.yaml#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: './franchise-api-responses.yaml#/components/schemas/ErrorResponse'
