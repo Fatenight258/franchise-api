@@ -185,7 +185,7 @@ paths:
       summary: Get the product with the most stock per branch
       description: |
         Returns, for each ACTIVE branch of the franchise, the product with the most stock and the branch it
-        belongs to. Branches without products are omitted. On a tie, the product with the lowest ID is returned.
+        belongs to. Branches without products are omitted. On a tie, all tied products are returned.
       operationId: getTopStockProducts
       parameters:
         - $ref: '#/components/parameters/IdPath'
@@ -272,7 +272,7 @@ paths:
       tags:
         - products
       summary: Update product
-      description: Updates the name and stock of an existing product
+      description: Updates the name of an existing product
       operationId: updateProduct
       parameters:
         - $ref: '#/components/parameters/IdPath'
@@ -281,7 +281,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductCreateDto'
+              $ref: '#/components/schemas/ProductUpdateDto'
       responses:
         '200':
           description: Product updated successfully
@@ -429,6 +429,9 @@ components:
           type: integer
           format: int32
           example: 1
+        branchName:
+          type: string
+          example: "El Poblado"
         name:
           type: string
           example: "Jugo de Mango"
@@ -454,6 +457,18 @@ components:
           format: int32
           minimum: 0
           example: 120
+
+    ProductUpdateDto:
+      type: object
+      description: Request body to update the name of a product
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Jugo de Mango"
 
     ProductStockUpdateDto:
       type: object

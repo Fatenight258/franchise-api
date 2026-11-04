@@ -26,6 +26,8 @@ public class ProductDto {
 
   private @Nullable Integer branchId;
 
+  private @Nullable String branchName;
+
   private @Nullable String name;
 
   private @Nullable Integer stock;
@@ -68,6 +70,26 @@ public class ProductDto {
 
   public void setBranchId(@Nullable Integer branchId) {
     this.branchId = branchId;
+  }
+
+  public ProductDto branchName(@Nullable String branchName) {
+    this.branchName = branchName;
+    return this;
+  }
+
+  /**
+   * Get branchName
+   * @return branchName
+   */
+  
+  @Schema(name = "branchName", example = "El Poblado", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("branchName")
+  public @Nullable String getBranchName() {
+    return branchName;
+  }
+
+  public void setBranchName(@Nullable String branchName) {
+    this.branchName = branchName;
   }
 
   public ProductDto name(@Nullable String name) {
@@ -121,13 +143,14 @@ public class ProductDto {
     ProductDto productDto = (ProductDto) o;
     return Objects.equals(this.id, productDto.id) &&
         Objects.equals(this.branchId, productDto.branchId) &&
+        Objects.equals(this.branchName, productDto.branchName) &&
         Objects.equals(this.name, productDto.name) &&
         Objects.equals(this.stock, productDto.stock);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, branchId, name, stock);
+    return Objects.hash(id, branchId, branchName, name, stock);
   }
 
   @Override
@@ -136,6 +159,7 @@ public class ProductDto {
     sb.append("class ProductDto {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    branchId: ").append(toIndentedString(branchId)).append("\n");
+    sb.append("    branchName: ").append(toIndentedString(branchName)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    stock: ").append(toIndentedString(stock)).append("\n");
     sb.append("}");

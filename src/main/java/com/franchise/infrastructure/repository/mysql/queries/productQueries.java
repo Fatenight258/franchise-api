@@ -2,20 +2,23 @@ package com.franchise.infrastructure.repository.mysql.queries;
 
 public class productQueries {
 
-  private static final String QUERY_FIND_ALL = """
-    SELECT id, branch_id, name, stock, created_at, updated_at FROM product
-""";
-
   private static final String QUERY_FIND_BY_ID = """
-    SELECT id, branch_id, name, stock, created_at, updated_at FROM product WHERE id = :id
+    SELECT p.id, p.branch_id, b.name AS branch_name, p.name, p.stock, p.created_at, p.updated_at
+    FROM product p
+    JOIN branch b ON b.id = p.branch_id
+    WHERE p.id = :id
 """;
 
   private static final String QUERY_INSERT = """
-    INSERT INTO product (branch_id, name, stock) VALUES (:branchId, :name, :stock)
+    INSERT INTO product (branch_id, name, stock) VALUES (:branch_id, :name, :stock)
 """;
 
   private static final String QUERY_UPDATE = """
-    UPDATE product SET name = :name, stock = :stock WHERE id = :id
+    UPDATE product SET name = :name WHERE id = :id
+""";
+
+  private static final String QUERY_UPDATE_STOCK = """
+    UPDATE product SET stock = :stock WHERE id = :id
 """;
 
   private static final String QUERY_DELETE = """
@@ -27,19 +30,15 @@ public class productQueries {
     FROM (
       SELECT b.id AS branch_id, b.name AS branch_name,
              p.id AS product_id, p.name AS product_name, p.stock,
-             ROW_NUMBER() OVER (PARTITION BY b.id ORDER BY p.stock DESC, p.id) AS rn
+             RANK() OVER (PARTITION BY b.id ORDER BY p.stock DESC) AS rn
       FROM branch b
       JOIN product p ON p.branch_id = b.id
-      WHERE b.franchise_id = :franchiseId
+      WHERE b.franchise_id = :franchise_id
         AND b.status = 'ACTIVE'
     ) t
     WHERE rn = 1
-    ORDER BY branch_id
+    ORDER BY branch_id, product_id
 """;
-
-  public static String findAll() {
-    return QUERY_FIND_ALL;
-  }
 
   public static String findById() {
     return QUERY_FIND_BY_ID;
@@ -51,6 +50,10 @@ public class productQueries {
 
   public static String update() {
     return QUERY_UPDATE;
+  }
+
+  public static String updateStock() {
+    return QUERY_UPDATE_STOCK;
   }
 
   public static String delete() {
