@@ -9,11 +9,11 @@ public interface FranchiseApplicationService {
 
   Flux<FranchiseDto> getFranchises();
 
-  Mono<FranchiseDto> getFranchise(final String id);
+  Mono<FranchiseDto> getFranchise(final Integer id);
 
   Mono<FranchiseDto> saveFranchise(final FranchiseCreateDto franchiseCreateDto);
 
-  Mono<FranchiseDto> updateFranchise(final String id, final FranchiseCreateDto franchiseCreateDto);
+  Mono<FranchiseDto> updateFranchise(final Integer id, final FranchiseCreateDto franchiseCreateDto);
 
-  Mono<FranchiseDto> deleteFranchise(final String id);
+  Mono<FranchiseDto> deleteFranchise(final Integer id);
 }

@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,6 +13,15 @@ import reactor.core.publisher.Mono;
 public interface BaseHandler {
 
   String ID_PARAM_KEY = "id";
+
+  default Integer pathId(final ServerRequest request) {
+    final String id = request.pathVariable(ID_PARAM_KEY);
+    try {
+      return Integer.valueOf(id);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid id: " + id);
+    }
+  }
 
   default <T> Mono<ServerResponse> ok(final Mono<T> body) {
     return body.flatMap(dto -> ServerResponse.ok().bodyValue(dto));

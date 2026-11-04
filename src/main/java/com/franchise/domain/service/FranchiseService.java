@@ -8,11 +8,11 @@ public interface FranchiseService {
 
   Flux<Franchise> findAll();
 
-  Mono<Franchise> findById(String id);
+  Mono<Franchise> findById(Integer id);
 
   Mono<Franchise> save(Franchise franchise);
 
   Mono<Franchise> update(Franchise franchise);
 
-  Mono<Franchise> deleteById(String id);
+  Mono<Franchise> deleteById(Integer id);
 }
