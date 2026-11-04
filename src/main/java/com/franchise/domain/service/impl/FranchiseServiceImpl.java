@@ -1,7 +1,7 @@
 package com.franchise.domain.service.impl;
 
 import com.franchise.domain.entity.Franchise;
-import com.franchise.domain.exception.FranchiseNotFoundException;
+import com.franchise.domain.exception.NotFoundException;
 import com.franchise.domain.port.FranchiseRepository;
 import com.franchise.domain.service.FranchiseService;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class FranchiseServiceImpl implements FranchiseService {
   @Override
   public Mono<Franchise> findById(final Integer id) {
     return repository.findById(id)
-        .switchIfEmpty(Mono.error(new FranchiseNotFoundException(id)));
+        .switchIfEmpty(Mono.error(NotFoundException.franchise(id)));
   }
 
   @Override
@@ -36,7 +36,7 @@ public class FranchiseServiceImpl implements FranchiseService {
   @Override
   public Mono<Franchise> update(final Franchise franchise) {
     return repository.update(franchise)
-        .switchIfEmpty(Mono.error(new FranchiseNotFoundException(franchise.getId())));
+        .switchIfEmpty(Mono.error(NotFoundException.franchise(franchise.getId())));
   }
 
   @Override

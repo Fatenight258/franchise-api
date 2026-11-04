@@ -35,6 +35,10 @@ public interface BaseHandler {
     return body.flatMap(dto -> ServerResponse.status(HttpStatus.CREATED).bodyValue(dto));
   }
 
+  default Mono<ServerResponse> noContent(final Mono<Void> body) {
+    return body.then(ServerResponse.noContent().build());
+  }
+
   default <T> Mono<T> validate(final Mono<T> body, final Validator validator) {
     return body
         .switchIfEmpty(Mono.error(new IllegalArgumentException("Request body is required")))

@@ -1,0 +1,336 @@
+{
+    "info": {
+        "_postman_id": "6ab8d9cf-cd53-4415-8668-4bee435605b0",
+        "name": "franchise-api",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Franchises",
+            "item": [
+                {
+                    "name": "Get franchises",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get franchise by id",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises/1",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create franchise",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Tierra Querida\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update franchise name",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Cosechas Express\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises/1",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Toggle franchise status",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises/2",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises",
+                                "2"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get top stock products by franchise",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises/1/top-stock-products",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises",
+                                "1",
+                                "top-stock-products"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Branches",
+            "item": [
+                {
+                    "name": "Create branch",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Envigado\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/franchises/1/branches",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "franchises",
+                                "1",
+                                "branches"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update branch name",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"El Poblado Centro\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/branches/1",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "branches",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Products",
+            "item": [
+                {
+                    "name": "Create product",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Jugo de Guanábana\",\n    \"stock\": 50\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/branches/1/products",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "branches",
+                                "1",
+                                "products"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update product name",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Jugo de Mango Natural\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/products/1",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "products",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update product stock",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"stock\": 80\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/products/1/stock",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "products",
+                                "1",
+                                "stock"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete product",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{franchise-api}}/api/v1/products/4",
+                            "host": [
+                                "{{franchise-api}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "products",
+                                "4"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "franchise-api",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ]
+}

@@ -1,7 +1,7 @@
 package com.franchise.domain.service.impl;
 
 import com.franchise.domain.entity.Branch;
-import com.franchise.domain.exception.BranchNotFoundException;
+import com.franchise.domain.exception.NotFoundException;
 import com.franchise.domain.port.BranchRepository;
 import com.franchise.domain.service.BranchService;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class BranchServiceImpl implements BranchService {
   @Override
   public Mono<Branch> findById(final Integer id) {
     return branchRepository.findById(id)
-        .switchIfEmpty(Mono.error(new BranchNotFoundException(id)));
+        .switchIfEmpty(Mono.error(NotFoundException.branch(id)));
   }
 
   @Override
@@ -30,6 +30,6 @@ public class BranchServiceImpl implements BranchService {
   @Override
   public Mono<Branch> update(final Branch branch) {
     return branchRepository.update(branch)
-        .switchIfEmpty(Mono.error(new BranchNotFoundException(branch.getId())));
+        .switchIfEmpty(Mono.error(NotFoundException.branch(branch.getId())));
   }
 }
