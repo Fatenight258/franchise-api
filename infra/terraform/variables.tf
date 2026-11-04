@@ -33,3 +33,21 @@ variable "allowed_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "app_instance_type" {
+  description = "EC2 instance type for the API"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "app_allowed_cidrs" {
+  description = "CIDR blocks allowed to call the API on port 8080"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "image_tag" {
+  description = "Docker image tag deployed on the instance"
+  type        = string
+  default     = "latest"
+}
