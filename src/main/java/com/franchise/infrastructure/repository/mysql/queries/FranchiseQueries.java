@@ -1,6 +1,6 @@
 package com.franchise.infrastructure.repository.mysql.queries;
 
-public class franchiseQueries {
+public class FranchiseQueries {
 
   private static final String QUERY_FIND_ALL = """
     SELECT id, name, status, created_at, updated_at FROM franchise
