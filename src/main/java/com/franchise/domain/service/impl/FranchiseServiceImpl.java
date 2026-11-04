@@ -23,9 +23,8 @@ public class FranchiseServiceImpl implements FranchiseService {
   }
 
   @Override
-  public Mono<Franchise> findById(final String id) {
-    return parseId(id)
-        .flatMap(repository::findById)
+  public Mono<Franchise> findById(final Integer id) {
+    return repository.findById(id)
         .switchIfEmpty(Mono.error(new FranchiseNotFoundException(id)));
   }
 
@@ -41,15 +40,9 @@ public class FranchiseServiceImpl implements FranchiseService {
   }
 
   @Override
-  public Mono<Franchise> deleteById(final String id) {
+  public Mono<Franchise> deleteById(final Integer id) {
     return findById(id)
         .flatMap(franchise -> repository.delete(franchise.getId())
             .then(repository.findById(franchise.getId())));
-  }
-
-  private Mono<Integer> parseId(final String id) {
-    return Mono.fromCallable(() -> Integer.valueOf(id))
-        .onErrorMap(NumberFormatException.class,
-            e -> new IllegalArgumentException("Invalid franchise id: " + id));
   }
 }

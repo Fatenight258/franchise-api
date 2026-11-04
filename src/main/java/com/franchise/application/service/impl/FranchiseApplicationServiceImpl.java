@@ -25,27 +25,27 @@ public class FranchiseApplicationServiceImpl implements FranchiseApplicationServ
   }
 
   @Override
-  public Mono<FranchiseDto> getFranchise(final String id) {
+  public Mono<FranchiseDto> getFranchise(final Integer id) {
     return franchiseService.findById(id)
         .map(FranchiseMapper::toDto);
   }
 
   @Override
   public Mono<FranchiseDto> saveFranchise(final FranchiseCreateDto franchiseCreateDto) {
-    return franchiseService.save(FranchiseMapper.toEntity(franchiseCreateDto))
+    return franchiseService.save(FranchiseMapper.toCreateEntity(franchiseCreateDto))
         .map(FranchiseMapper::toDto);
   }
 
   @Override
-  public Mono<FranchiseDto> updateFranchise(final String id, final FranchiseCreateDto franchiseCreateDto) {
+  public Mono<FranchiseDto> updateFranchise(final Integer id, final FranchiseCreateDto franchiseCreateDto) {
     return franchiseService.findById(id)
         .flatMap(franchise -> franchiseService.update(
-            FranchiseMapper.toEntity(franchise.getId(), franchiseCreateDto)))
+            FranchiseMapper.toUpdateEntity(franchise.getId(), franchiseCreateDto)))
         .map(FranchiseMapper::toDto);
   }
 
   @Override
-  public Mono<FranchiseDto> deleteFranchise(final String id) {
+  public Mono<FranchiseDto> deleteFranchise(final Integer id) {
     return franchiseService.deleteById(id)
         .map(FranchiseMapper::toDto);
   }

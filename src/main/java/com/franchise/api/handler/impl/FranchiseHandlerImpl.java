@@ -29,7 +29,7 @@ public class FranchiseHandlerImpl implements FranchiseHandler {
 
   @Override
   public Mono<ServerResponse> getFranchiseById(final ServerRequest request) {
-    final String id = request.pathVariable(ID_PARAM_KEY);
+    final Integer id = pathId(request);
     return ok(franchiseApplicationService.getFranchise(id));
   }
 
@@ -41,14 +41,14 @@ public class FranchiseHandlerImpl implements FranchiseHandler {
 
   @Override
   public Mono<ServerResponse> updateFranchise(final ServerRequest request) {
-    final String id = request.pathVariable(ID_PARAM_KEY);
+    final Integer id = pathId(request);
     return ok(validate(request.bodyToMono(FranchiseCreateDto.class), validator)
         .flatMap(franchiseCreateDto -> franchiseApplicationService.updateFranchise(id, franchiseCreateDto)));
   }
 
   @Override
-  public Mono<ServerResponse> deleteFranchise(final ServerRequest serverRequest) {
-    final String id = serverRequest.pathVariable(ID_PARAM_KEY);
+  public Mono<ServerResponse> deleteFranchise(final ServerRequest request) {
+    final Integer id = pathId(request);
     return ok(franchiseApplicationService.deleteFranchise(id));
   }
 }

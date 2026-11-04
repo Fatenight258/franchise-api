@@ -14,13 +14,13 @@ public class FranchiseMapper {
         .status(Status.fromValue(franchise.getStatus()));
   }
 
-  public static Franchise toEntity(final FranchiseCreateDto franchiseCreateDto) {
+  public static Franchise toCreateEntity(final FranchiseCreateDto franchiseCreateDto) {
     return Franchise.builder()
         .name(franchiseCreateDto.getName())
         .build();
   }
 
-  public static Franchise toEntity(final Integer id, final FranchiseCreateDto franchiseCreateDto) {
+  public static Franchise toUpdateEntity(final Integer id, final FranchiseCreateDto franchiseCreateDto) {
     return Franchise.builder()
         .id(id)
         .name(franchiseCreateDto.getName())

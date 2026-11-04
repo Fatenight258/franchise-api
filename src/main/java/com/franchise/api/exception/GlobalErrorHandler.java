@@ -3,6 +3,7 @@ package com.franchise.api.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.franchise.application.model.ErrorResponse;
+import com.franchise.domain.exception.BranchNotFoundException;
 import com.franchise.domain.exception.FranchiseNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -49,7 +50,7 @@ public class GlobalErrorHandler implements WebExceptionHandler {
   }
 
   private HttpStatusCode resolveStatus(final Throwable ex) {
-    if (ex instanceof FranchiseNotFoundException) {
+    if (ex instanceof FranchiseNotFoundException || ex instanceof BranchNotFoundException) {
       return HttpStatus.NOT_FOUND;
     }
     if (ex instanceof IllegalArgumentException
