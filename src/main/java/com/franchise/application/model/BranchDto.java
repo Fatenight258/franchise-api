@@ -28,6 +28,8 @@ public class BranchDto {
 
   private @Nullable Integer franchiseId;
 
+  private @Nullable String franchiseName;
+
   private @Nullable String name;
 
   private @Nullable Status status;
@@ -70,6 +72,26 @@ public class BranchDto {
 
   public void setFranchiseId(@Nullable Integer franchiseId) {
     this.franchiseId = franchiseId;
+  }
+
+  public BranchDto franchiseName(@Nullable String franchiseName) {
+    this.franchiseName = franchiseName;
+    return this;
+  }
+
+  /**
+   * Get franchiseName
+   * @return franchiseName
+   */
+  
+  @Schema(name = "franchiseName", example = "Cosechas", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("franchiseName")
+  public @Nullable String getFranchiseName() {
+    return franchiseName;
+  }
+
+  public void setFranchiseName(@Nullable String franchiseName) {
+    this.franchiseName = franchiseName;
   }
 
   public BranchDto name(@Nullable String name) {
@@ -123,13 +145,14 @@ public class BranchDto {
     BranchDto branchDto = (BranchDto) o;
     return Objects.equals(this.id, branchDto.id) &&
         Objects.equals(this.franchiseId, branchDto.franchiseId) &&
+        Objects.equals(this.franchiseName, branchDto.franchiseName) &&
         Objects.equals(this.name, branchDto.name) &&
         Objects.equals(this.status, branchDto.status);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, franchiseId, name, status);
+    return Objects.hash(id, franchiseId, franchiseName, name, status);
   }
 
   @Override
@@ -138,6 +161,7 @@ public class BranchDto {
     sb.append("class BranchDto {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    franchiseId: ").append(toIndentedString(franchiseId)).append("\n");
+    sb.append("    franchiseName: ").append(toIndentedString(franchiseName)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("}");

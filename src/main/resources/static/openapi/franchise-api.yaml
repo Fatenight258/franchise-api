@@ -182,7 +182,6 @@ paths:
     get:
       tags:
         - franchises
-        - products
       summary: Get the product with the most stock per branch
       description: |
         Returns, for each ACTIVE branch of the franchise, the product with the most stock and the branch it
@@ -206,48 +205,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /branches:
-    get:
-      tags:
-        - branches
-      summary: Get all branches
-      description: Retrieves a list of all branches
-      operationId: getBranches
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BranchDto'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /branches/{id}:
-    get:
-      tags:
-        - branches
-      summary: Get branch by ID
-      description: Retrieves a specific branch by its ID
-      operationId: getBranchById
-      parameters:
-        - $ref: '#/components/parameters/IdPath'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BranchDto'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
     put:
       tags:
         - branches
@@ -275,30 +233,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-    delete:
-      tags:
-        - branches
-      summary: Delete branch (logical)
-      description: |
-        Logically deletes a branch by toggling its status (ACTIVE -> INACTIVE, INACTIVE -> ACTIVE).
-        No records are physically deleted. Returns the branch with its new status.
-      operationId: deleteBranch
-      parameters:
-        - $ref: '#/components/parameters/IdPath'
-      responses:
-        '200':
-          description: Branch status changed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BranchDto'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
@@ -333,48 +267,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /products:
-    get:
-      tags:
-        - products
-      summary: Get all products
-      description: Retrieves a list of all products
-      operationId: getProducts
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductDto'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /products/{id}:
-    get:
-      tags:
-        - products
-      summary: Get product by ID
-      description: Retrieves a specific product by its ID
-      operationId: getProductById
-      parameters:
-        - $ref: '#/components/parameters/IdPath'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductDto'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
     put:
       tags:
         - products
@@ -503,6 +396,9 @@ components:
           type: integer
           format: int32
           example: 1
+        franchiseName:
+          type: string
+          example: "Cosechas"
         name:
           type: string
           example: "El Poblado"
