@@ -1,6 +1,6 @@
 package com.franchise.infrastructure.repository.mysql.queries;
 
-public class productQueries {
+public class ProductQueries {
 
   private static final String QUERY_FIND_BY_ID = """
     SELECT p.id, p.branch_id, b.name AS branch_name, p.name, p.stock, p.created_at, p.updated_at

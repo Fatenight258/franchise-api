@@ -6,7 +6,7 @@ import com.franchise.domain.entity.TopStockProduct;
 import com.franchise.domain.port.ProductRepository;
 import com.franchise.infrastructure.adapter.ProductAdapter;
 import com.franchise.infrastructure.adapter.TopStockProductAdapter;
-import com.franchise.infrastructure.repository.mysql.queries.productQueries;
+import com.franchise.infrastructure.repository.mysql.queries.ProductQueries;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -24,7 +24,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Mono<Product> findById(final Integer id) {
-    return client.sql(productQueries.findById())
+    return client.sql(ProductQueries.findById())
         .bind(Product.PROPERTY_ID, id)
         .map(ProductAdapter::adapt)
         .one();
@@ -32,7 +32,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Mono<Product> insert(final Product product) {
-    return client.sql(productQueries.insert())
+    return client.sql(ProductQueries.insert())
         .bind(Product.PROPERTY_BRANCH_ID, product.getBranchId())
         .bind(Product.PROPERTY_NAME, product.getName())
         .bind(Product.PROPERTY_STOCK, product.getStock())
@@ -44,7 +44,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Mono<Product> update(final Product product) {
-    return client.sql(productQueries.update())
+    return client.sql(ProductQueries.update())
         .bind(Product.PROPERTY_ID, product.getId())
         .bind(Product.PROPERTY_NAME, product.getName())
         .fetch()
@@ -55,7 +55,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Mono<Product> updateStock(final Product product) {
-    return client.sql(productQueries.updateStock())
+    return client.sql(ProductQueries.updateStock())
         .bind(Product.PROPERTY_ID, product.getId())
         .bind(Product.PROPERTY_STOCK, product.getStock())
         .fetch()
@@ -66,7 +66,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Mono<Void> delete(final Integer id) {
-    return client.sql(productQueries.delete())
+    return client.sql(ProductQueries.delete())
         .bind(Product.PROPERTY_ID, id)
         .fetch()
         .rowsUpdated()
@@ -75,7 +75,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
   @Override
   public Flux<TopStockProduct> findTopStockByFranchiseId(final Integer franchiseId) {
-    return client.sql(productQueries.findTopStockByFranchiseId())
+    return client.sql(ProductQueries.findTopStockByFranchiseId())
         .bind(Branch.PROPERTY_FRANCHISE_ID, franchiseId)
         .map(TopStockProductAdapter::adapt)
         .all();
