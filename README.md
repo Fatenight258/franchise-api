@@ -161,20 +161,31 @@ Todas las respuestas de error tienen la forma:
 | 404    | La franquicia, sucursal o producto no existe               |
 | 409    | Ya existe un registro con ese nombre                       |
 
-## Base de datos en la nube (AWS RDS con Terraform)
+## Despliegue en AWS (Terraform)
 
-La base de datos se puede provisionar en AWS como infraestructura como código. La definición está en `infra/terraform/` y crea:
+Toda la solución se despliega en AWS como infraestructura como código. La definición está en `infra/terraform/`:
 
-- Una instancia **RDS MySQL 8.4** (`db.t4g.micro`, 20 GB gp3 cifrado, Single-AZ).
-- Un **security group** que solo permite conexiones al puerto 3306 desde la IP pública de quien ejecuta Terraform.
-- Una contraseña aleatoria para el usuario de la base de datos.
+```
+Internet ──:8080──► EC2 t3.micro (Docker: franchise-api) ──:3306──► RDS MySQL 8.4
+                         │
+                         ├── imagen desde ECR
+                         └── contraseña de la BD desde SSM Parameter Store
+```
+
+| Archivo   | Recursos                                                                                       |
+|-----------|------------------------------------------------------------------------------------------------|
+| `main.tf` | RDS MySQL 8.4 (`db.t4g.micro`, 20 GB gp3 cifrado), su security group y la contraseña aleatoria |
+| `app.tf`  | Repositorio ECR, EC2 con Docker, rol IAM, parámetro SSM con la contraseña y security group de la app |
+
+La base de datos solo acepta conexiones desde la EC2 y desde la IP pública de quien ejecuta Terraform. La contraseña no viaja en el `user-data` de la instancia: la EC2 la lee de SSM al arrancar.
 
 ### Requisitos
 
 - Una cuenta de AWS y la [AWS CLI](https://aws.amazon.com/cli/) configurada (`aws configure`).
 - [Terraform](https://developer.hashicorp.com/terraform/install) 1.6 o superior.
+- Docker.
 
-### Crear la base de datos
+### 1. Crear la infraestructura
 
 ```bash
 cd infra/terraform
@@ -182,19 +193,34 @@ terraform init
 terraform apply
 ```
 
-Tarda entre 5 y 10 minutos. Al terminar muestra el host de la base de datos:
+Tarda entre 5 y 10 minutos (la mayor parte es la RDS). Al terminar muestra:
 
 ```
-db_host = "franchise-db.xxxxxxxx.us-east-1.rds.amazonaws.com"
+app_url            = "http://<ip>:8080/api/v1"
+swagger_url        = "http://<ip>:8080/api/v1/swagger-ui.html"
+ecr_repository_url = "<cuenta>.dkr.ecr.us-east-1.amazonaws.com/franchise-api"
+db_host            = "franchise-db.xxxxxxxx.us-east-1.rds.amazonaws.com"
 ```
+
+### 2. Publicar la imagen
+
+Desde la raíz del proyecto, con el valor de `ecr_repository_url`:
+
+```bash
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <cuenta>.dkr.ecr.us-east-1.amazonaws.com
+docker build --platform linux/amd64 -t <ecr_repository_url>:latest .
+docker push <ecr_repository_url>:latest
+```
+
+La EC2 espera a que la imagen exista en ECR, la descarga y arranca el contenedor. En uno o dos minutos la API responde en `app_url`. Al arrancar crea el esquema y carga los datos de prueba en RDS.
+
+### Conectar la app local a RDS (opcional)
 
 La contraseña se consulta con:
 
 ```bash
 terraform output -raw db_password
 ```
-
-### Conectar la app a RDS
 
 Poner en el `.env` de la raíz los valores que entrega Terraform:
 
@@ -212,11 +238,13 @@ Si la IP pública cambia, se vuelve a ejecutar `terraform apply` para actualizar
 terraform apply -var='allowed_cidrs=["203.0.113.10/32"]'
 ```
 
-### Eliminar la base de datos
+### Eliminar todo
 
 ```bash
 terraform destroy
 ```
+
+Borra la EC2, la RDS, el repositorio ECR y el resto de recursos.
 
 El estado de Terraform (`terraform.tfstate`) contiene la contraseña, por eso queda fuera del repositorio.
 

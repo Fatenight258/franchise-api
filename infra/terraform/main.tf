@@ -29,6 +29,14 @@ resource "aws_security_group" "db" {
     cidr_blocks = local.allowed_cidrs
   }
 
+  ingress {
+    description     = "MySQL from the app instance"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+dnf install -y docker
+systemctl enable --now docker
+
+# The image may be pushed after the instance is created, so keep retrying for a while.
+for attempt in $(seq 1 60); do
+  if aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry} \
+     && docker pull ${image}; then
+    break
+  fi
+  echo "Image not available yet (attempt $attempt), retrying in 30s"
+  sleep 30
+done
+
+DB_PASSWORD=$(aws ssm get-parameter --region ${region} --name ${password_param} --with-decryption --query Parameter.Value --output text)
+
+docker run -d --name franchise-api --restart always -p 8080:8080 \
+  -e DB_HOST=${db_host} \
+  -e DB_PORT=${db_port} \
+  -e DB_NAME=${db_name} \
+  -e DB_USER=${db_user} \
+  -e DB_PASSWORD="$DB_PASSWORD" \
+  ${image}
