@@ -2,43 +2,49 @@
 
 API reactiva para gestionar franquicias, sus sucursales y los productos de cada sucursal.
 
-**Stack:** Java 21 · Spring Boot 3.5 · Spring WebFlux (endpoints funcionales) · R2DBC · MySQL 8 · Docker
+**Stack:** Java 21 · Spring Boot 3.5 · Spring WebFlux (endpoints funcionales) · R2DBC · MySQL 8 · Docker · OpenAPI
 
 ## Modelo
 
 ```
-Franquicia (nombre)
- └── Sucursal (nombre)
+Franquicia (nombre, estado)
+ └── Sucursal (nombre, estado)
       └── Producto (nombre, stock)
 ```
+
+Las franquicias y sucursales tienen estado `ACTIVE` / `INACTIVE` (borrado lógico). Los productos se eliminan físicamente.
 
 ## Arquitectura (hexagonal)
 
 ```
 com.franchise
-├── api                       # Entrada HTTP
-│   ├── router                # RouterFunction (definición de rutas)
-│   ├── handler               # Handlers funcionales (request -> response)
-│   └── exception             # Manejo global de errores
-├── application               # Casos de uso
-│   ├── dto                   # Request / response
-│   ├── mapper                # MapStruct (DTO <-> dominio)
-│   └── usecase               # Orquestación de la lógica
-├── domain                    # Núcleo, sin dependencias de framework
-│   ├── model                 # Franchise, Branch, Product
-│   ├── port                  # Interfaces de persistencia
-│   └── exception             # Excepciones de negocio
-└── infrastructure            # Salida
-    ├── entity                # Tablas R2DBC (@Table)
-    ├── repository            # ReactiveCrudRepository
-    └── adapter               # Implementación de los puertos
+├── api                         # Entrada HTTP
+│   ├── router                  # RouterFunction (definición de rutas)
+│   ├── handler                 # Handlers funcionales (request -> response)
+│   └── exception               # Manejo global de errores
+├── application                 # Casos de uso
+│   ├── model                   # DTOs generados desde el contrato OpenAPI
+│   ├── mapper                  # DTO <-> entidad de dominio
+│   └── service                 # Orquestación de la lógica
+├── domain                      # Núcleo
+│   ├── entity                  # Franchise, Branch, Product, TopStockProduct
+│   ├── port                    # Interfaces de persistencia
+│   ├── service                 # Reglas de negocio
+│   └── exception               # NotFoundException
+└── infrastructure              # Salida
+    ├── adapter                 # Fila de BD -> entidad
+    └── repository/mysql        # Implementación de los puertos con DatabaseClient
+        └── queries             # SQL de cada tabla
 ```
+
+Los DTOs de `application/model` se generan con `openapi-generator` a partir de `src/main/resources/static/openapi/franchise-api.yaml` cada vez que se compila (`mvn compile`).
 
 ## Ejecutar en local
 
-### Variables de entorno
+### Requisitos
 
-Opcionalmente se puede crear un archivo `.env` en la raíz con las variables de la tabla de abajo. Docker Compose lo lee y la app también lo carga al correr con Maven o desde el IDE. Si no existe, se usan los valores por defecto.
+- Docker
+- Java 21 y Maven 3.9 (solo para la opción 2)
 
 ### Opción 1: todo con Docker
 
@@ -53,28 +59,117 @@ docker compose up -d mysql
 mvn spring-boot:run
 ```
 
-El esquema (`src/main/resources/schema.sql`) se crea al arrancar.
+Al arrancar se crea el esquema y se cargan datos de prueba (`src/main/resources/schema.sql`).
 
 - API: http://localhost:8080/api/v1
 - Swagger UI: http://localhost:8080/api/v1/swagger-ui.html
 - Health: http://localhost:8080/api/v1/actuator/health
 
-| Variable      | Default     |
-|---------------|-------------|
-| `SERVER_PORT` | `8080`      |
-| `DB_HOST`     | `localhost` |
-| `DB_PORT`     | `3306`      |
-| `DB_NAME`     | `franchise` |
-| `DB_USER`     | `franchise` |
-| `DB_PASSWORD` | `franchise` |
+### Variables de entorno
+
+Opcionalmente se puede crear un archivo `.env` en la raíz con estas variables. Docker Compose lo lee y la app también lo carga al correr con Maven o desde el IDE. Si no existe, se usan los valores por defecto.
+
+| Variable           | Default              |
+|--------------------|----------------------|
+| `SERVER_PORT`      | `8080`               |
+| `DB_HOST`          | `localhost`          |
+| `DB_PORT`          | `3306`               |
+| `DB_NAME`          | `franchise`          |
+| `DB_USER`          | `franchise`          |
+| `DB_PASSWORD`      | `franchise`          |
 | `DB_ROOT_PASSWORD` | `root` (solo Docker) |
+
+### Datos de prueba
+
+| Franquicia        | Estado   | Sucursales                                          |
+|-------------------|----------|-----------------------------------------------------|
+| 1 - Cosechas      | ACTIVE   | El Poblado, Laureles, Belén (sin productos)         |
+| 2 - El Rancherito | ACTIVE   | Las Palmas, Centro (inactiva)                       |
+| 3 - Arturo Calle  | INACTIVE | C.C. Santafé (inactiva), C.C. Oviedo (inactiva)     |
+
+## Endpoints
+
+Base: `http://localhost:8080/api/v1`
+
+### Franquicias
+
+| Método | Ruta                                 | Descripción                                          |
+|--------|--------------------------------------|------------------------------------------------------|
+| GET    | `/franchises`                        | Lista las franquicias                                |
+| GET    | `/franchises/{id}`                   | Consulta una franquicia                              |
+| POST   | `/franchises`                        | Crea una franquicia                                  |
+| PUT    | `/franchises/{id}`                   | Actualiza el nombre                                  |
+| DELETE | `/franchises/{id}`                   | Cambia el estado entre `ACTIVE` e `INACTIVE`         |
+| GET    | `/franchises/{id}/top-stock-products`| Producto con más stock en cada sucursal activa       |
+
+### Sucursales
+
+| Método | Ruta                        | Descripción                         |
+|--------|-----------------------------|-------------------------------------|
+| POST   | `/franchises/{id}/branches` | Agrega una sucursal a la franquicia |
+| PUT    | `/branches/{id}`            | Actualiza el nombre                 |
+
+### Productos
+
+| Método | Ruta                      | Descripción                       |
+|--------|---------------------------|-----------------------------------|
+| POST   | `/branches/{id}/products` | Agrega un producto a la sucursal  |
+| PUT    | `/products/{id}`          | Actualiza el nombre               |
+| PATCH  | `/products/{id}/stock`    | Actualiza el stock                |
+| DELETE | `/products/{id}`          | Elimina el producto               |
+
+### Ejemplos
+
+```bash
+# Crear una sucursal
+curl -X POST http://localhost:8080/api/v1/franchises/1/branches \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Envigado"}'
+
+# Modificar el stock de un producto
+curl -X PATCH http://localhost:8080/api/v1/products/1/stock \
+  -H "Content-Type: application/json" \
+  -d '{"stock": 80}'
+
+# Producto con más stock por sucursal
+curl http://localhost:8080/api/v1/franchises/1/top-stock-products
+```
+
+Respuesta de `top-stock-products` para Cosechas:
+
+```json
+[
+  { "branchId": 1, "branchName": "El Poblado", "productId": 1, "productName": "Jugo de Mango", "stock": 120 },
+  { "branchId": 2, "branchName": "Laureles", "productId": 5, "productName": "Jugo de Mango", "stock": 60 },
+  { "branchId": 2, "branchName": "Laureles", "productId": 6, "productName": "Batido de Banano", "stock": 60 }
+]
+```
+
+Si hay empate en una sucursal se devuelven todos los productos empatados. Las sucursales sin productos o inactivas no aparecen.
+
+### Errores
+
+Todas las respuestas de error tienen la forma:
+
+```json
+{ "error": 404, "message": "Franchise not found: 99", "debugMessage": "NotFoundException" }
+```
+
+| Código | Cuándo                                                     |
+|--------|------------------------------------------------------------|
+| 400    | Id inválido, body vacío o campos que no cumplen el contrato |
+| 404    | La franquicia, sucursal o producto no existe               |
+| 409    | Ya existe un registro con ese nombre                       |
+
+## Postman
+
+En `postman-collection/` están la colección y el environment:
+
+1. En Postman, **Import** y arrastrar los dos archivos.
+2. Seleccionar el environment **DEV** (`franchise-api = http://localhost:8080`).
 
 ## Tests
 
 ```bash
 mvn test        # usa H2 en memoria, no necesita MySQL
 ```
-
-## Endpoints
-
-_Pendiente._
