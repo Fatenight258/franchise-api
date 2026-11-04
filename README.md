@@ -161,6 +161,65 @@ Todas las respuestas de error tienen la forma:
 | 404    | La franquicia, sucursal o producto no existe               |
 | 409    | Ya existe un registro con ese nombre                       |
 
+## Base de datos en la nube (AWS RDS con Terraform)
+
+La base de datos se puede provisionar en AWS como infraestructura como código. La definición está en `infra/terraform/` y crea:
+
+- Una instancia **RDS MySQL 8.4** (`db.t4g.micro`, 20 GB gp3 cifrado, Single-AZ).
+- Un **security group** que solo permite conexiones al puerto 3306 desde la IP pública de quien ejecuta Terraform.
+- Una contraseña aleatoria para el usuario de la base de datos.
+
+### Requisitos
+
+- Una cuenta de AWS y la [AWS CLI](https://aws.amazon.com/cli/) configurada (`aws configure`).
+- [Terraform](https://developer.hashicorp.com/terraform/install) 1.6 o superior.
+
+### Crear la base de datos
+
+```bash
+cd infra/terraform
+terraform init
+terraform apply
+```
+
+Tarda entre 5 y 10 minutos. Al terminar muestra el host de la base de datos:
+
+```
+db_host = "franchise-db.xxxxxxxx.us-east-1.rds.amazonaws.com"
+```
+
+La contraseña se consulta con:
+
+```bash
+terraform output -raw db_password
+```
+
+### Conectar la app a RDS
+
+Poner en el `.env` de la raíz los valores que entrega Terraform:
+
+```
+DB_HOST=<db_host>
+DB_USER=franchise
+DB_PASSWORD=<db_password>
+```
+
+Al arrancar, la app crea el esquema y carga los datos de prueba en RDS igual que en local.
+
+Si la IP pública cambia, se vuelve a ejecutar `terraform apply` para actualizar la regla del security group. También se pueden indicar otras IPs con la variable `allowed_cidrs`:
+
+```bash
+terraform apply -var='allowed_cidrs=["203.0.113.10/32"]'
+```
+
+### Eliminar la base de datos
+
+```bash
+terraform destroy
+```
+
+El estado de Terraform (`terraform.tfstate`) contiene la contraseña, por eso queda fuera del repositorio.
+
 ## Postman
 
 En `postman-collection/` están la colección y el environment:
@@ -171,5 +230,13 @@ En `postman-collection/` están la colección y el environment:
 ## Tests
 
 ```bash
-mvn test        # usa H2 en memoria, no necesita MySQL
+mvn test        # no necesita MySQL ni Docker
 ```
+
+| Capa          | Qué se prueba                                                           | Herramientas                  |
+|---------------|-------------------------------------------------------------------------|-------------------------------|
+| `domain`      | Reglas de los servicios: búsqueda, cambio de estado, errores 404        | JUnit 5, Mockito, StepVerifier |
+| `application` | Orquestación: no se crea una sucursal o producto si el padre no existe  | JUnit 5, Mockito, StepVerifier |
+| `api`         | Códigos HTTP de cada endpoint (201, 204, 400, 404, 409)                 | WebTestClient                 |
+
+El test `ServiceRunnerTests` levanta la aplicación completa con H2 en memoria y verifica el health check.
